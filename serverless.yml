@@ -20,47 +20,71 @@ service: python-xray-example
 # Check out our docs for more details
 frameworkVersion: '3'
 
+plugins:
+  - serverless-python-requirements
+  - serverless-step-functions
+
 provider:
   name: aws
   runtime: python3.8
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "s3:ListBucket"
+          Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+        - Effect: "Allow"
+          Action:
+            - "s3:PutObject"
+          Resource:
+            Fn::Join:
+              - ""
+              - - "arn:aws:s3:::"
+                - "Ref" : "ServerlessDeploymentBucket"
+                - "/*"
 
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
-
-# you can add statements to the Lambda function's IAM Role here
-#  iam:
-#    role:
-#      statements:
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:ListBucket"
-#          Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:PutObject"
-#          Resource:
-#            Fn::Join:
-#              - ""
-#              - - "arn:aws:s3:::"
-#                - "Ref" : "ServerlessDeploymentBucket"
-#                - "/*"
+custom:
+  CreateIssue:
+    StateMachienName: ${self:service}-create-issue-${self:provider.stage}
+  ResolveIssue:
+    StateMachienName: ${self:service}-resolve-issue-${self:provider.stage}
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  environment:
+    variable1: value1
 
 # you can add packaging information here
-#package:
-#  patterns:
-#    - '!exclude-me.py'
-#    - '!exclude-me-dir/**'
-#    - include-me.py
-#    - include-me-dir/**
+package:
+  patterns:
+    - '!.venv/**'
+    - '!node_modules/**'
+    - '!.env'
+    - '!.envrc'
+
+
+stepFunctions:
+  stateMachines:
+    CreateIssue:
+      name: ${self:custom.CreateIssue.StateMachienName}
+    ResolveIssue:
+      name: ${self:custom.CreateIssue.StateMachienName}
+
 
 functions:
-  hello:
-    handler: handler.hello
+  # CreateIssue state machine
+  CreateIssueHandler:
+    handler: app/handlers/statemachines/create_issue.create_issue
+  SaveIssueHandler:
+    handler: app/handlers/statemachines/create_issue.save_issue
+
+  # ResolveIssue state machine
+  CheckExistsIssueHandler:
+    handler: app/handlers/statemachines/resolve_issue.create_issue
+  ResolveIssueHandler:
+    handler: app/handlers/statemachines/resolve_issue.save_issue
+
+
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

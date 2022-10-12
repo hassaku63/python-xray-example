@@ -1,0 +1,25 @@
+{
+  "name": "python-xray-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hassaku63/python-xray-example.git"
+  },
+  "keywords": [],
+  "author": "hassaku63",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hassaku63/python-xray-example/issues"
+  },
+  "homepage": "https://github.com/hassaku63/python-xray-example#readme",
+  "devDependencies": {
+    "serverless": "^3.23.0",
+    "serverless-python-requirements": "^5.4.0",
+    "serverless-step-functions": "^3.10.0"
+  }
+}
